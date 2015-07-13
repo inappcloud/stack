@@ -12,16 +12,12 @@ describe('calling function', function() {
       }
     },
 
-    call: function(ctx, args) {
-      return new Promise(function(resolve, reject) {
-        if (args.message === 'ok') {
-          ctx.message = 'ok';
-          resolve(ctx);
-        } else if (args.message === 'ko') {
-          ctx.error = 'ko';
-          reject(ctx);
-        }
-      });
+    call: function(ctx, args, done, error) {
+      if (args.message === 'ok') {
+        done('ok');
+      } else if (args.message === 'ko') {
+        error('ko');
+      }
     }
   };
 
@@ -40,7 +36,7 @@ describe('calling function', function() {
     stack({}).then(function(ctx) {
       return p.messageToOutput(ctx, { message: 'ok' });
     }).then(function(ctx) {
-      assert.equal(ctx.message, 'ok');
+      assert.equal(ctx.messageToOutput, 'ok');
       done();
     });
   });

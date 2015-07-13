@@ -12,7 +12,19 @@ module.exports = function(functions) {
         }
       }
 
-      return fn.call(ctx, args);
+      return new Promise(function(resolve, reject) {
+        function done(output) {
+          ctx[fn.name] = output;
+          resolve(ctx);
+        }
+
+        function error(err) {
+          ctx.error = err;
+          reject(ctx);
+        }
+
+        fn.call(ctx, args, done, error);
+      });
     };
   });
 
