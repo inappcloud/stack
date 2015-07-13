@@ -11,7 +11,7 @@ describe('calling function', function() {
       }
     },
 
-    fn: function(args) {
+    call: function(args) {
       return new Promise(function(resolve, reject) {
         if (args.message === 'ok') {
           resolve(args.message);

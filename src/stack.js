@@ -18,6 +18,6 @@ module.exports = {
       }
     }
 
-    return args[0].fn(args[1]);
+    return args[0].call(args[1]);
   }
 };
