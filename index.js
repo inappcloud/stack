@@ -1,1 +1,4 @@
-module.exports = require('./src/stack');
+module.exports = {
+  stack: require('./src/stack'),
+  pkg: require('./src/pkg')
+};

@@ -1,6 +1,6 @@
 var assert = require('assert');
-var stack = require('..');
-var pkg = require('../src/pkg.js');
+var stack = require('..').stack;
+var pkg = require('..').pkg;
 
 describe('calling function', function() {
   var func = {
