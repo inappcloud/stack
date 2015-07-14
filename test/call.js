@@ -34,9 +34,9 @@ describe('calling function', function() {
 
   it('should be resolved', function(done) {
     stack({}).then(function(ctx) {
-      return p.messageToOutput(ctx, { message: 'ok' });
+      return p.messageToOutput(ctx, { message: 'ok', output: 'message' });
     }).then(function(ctx) {
-      assert.equal(ctx.messageToOutput, 'ok');
+      assert.equal(ctx.message, 'ok');
       done();
     });
   });

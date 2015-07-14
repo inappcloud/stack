@@ -14,7 +14,7 @@ module.exports = function(functions) {
 
       return new Promise(function(resolve, reject) {
         function done(output) {
-          ctx[fn.name] = output;
+          ctx[args.output] = output;
           resolve(ctx);
         }
 
