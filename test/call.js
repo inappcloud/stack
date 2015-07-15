@@ -12,7 +12,7 @@ describe('calling function', function() {
       }
     },
 
-    call: function(ctx, args, done, error) {
+    call: function(args, done, error) {
       if (args.message === 'ok') {
         done('ok');
       } else if (args.message === 'ko') {

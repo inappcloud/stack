@@ -23,7 +23,7 @@ module.exports = function(functions) {
           reject(ctx);
         }
 
-        fn.call(ctx, args, done, error);
+        fn.call(args, done, error);
       });
     };
   });
