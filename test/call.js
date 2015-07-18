@@ -1,52 +1,80 @@
 var assert = require('assert');
-var stack = require('..').stack;
-var pkg = require('..').pkg;
+var test = require('mocha').test;
+var fn = require('..').fn;
 
-describe('calling function', function() {
-  var func = {
-    name: 'messageToOutput',
+function eq(actual, expected, done) {
+  try {
+    assert.equal(actual, expected);
+    done();
+  } catch(e) {
+    done(e);
+  }
+}
 
-    args: {
-      message: {
-        required: true
-      }
-    },
+function err(msg, done) {
+  done(new Error(msg));
+}
 
-    call: function(args, done, error) {
-      if (args.message === 'ok') {
-        done('ok');
-      } else if (args.message === 'ko') {
-        error('ko');
-      }
+var addOne = fn({
+  name: 'addOne',
+
+  args: {
+    value: {
+      required: true
     }
-  };
+  },
 
-  var p = pkg([func]);
+  call: function(args, done) {
+    if (typeof args.value !== 'number') {
+      done(new Error('value must be a number.'));
+    } else {
+      done(args.value + 1);
+    }
+  }
+});
 
-  it('should fail without proper args', function(done) {
-    stack({}).then(function(ctx) {
-      return p.messageToOutput(ctx, {});
-    }).catch(function(ctx) {
-      assert(ctx.error, '`err` expected because required message argument is missing.');
-      done();
-    });
+var addTwo = fn({
+  name: 'addOne',
+
+  args: {
+    value: {
+      defaultsTo: 10
+    }
+  },
+
+  call: function(args, done) {
+    done(args.value + 2);
+  }
+});
+
+test('function call', function(done) {
+  addOne({ value: 1 }).then(function(v) {
+    eq(v, 2, done);
+  }).catch(function() {
+    err('expecting to not throw an error.', done);
   });
+});
 
-  it('should be resolved', function(done) {
-    stack({}).then(function(ctx) {
-      return p.messageToOutput(ctx, { message: 'ok', output: 'message' });
-    }).then(function(ctx) {
-      assert.equal(ctx.message, 'ok');
-      done();
-    });
+test('rejected call', function(done) {
+  addOne({ value: 'test' }).then(function() {
+    err('expecting to throw an error.', done);
+  }).catch(function(e) {
+    eq(e.message, 'value must be a number.', done);
   });
+});
 
-  it('should be rejected', function(done) {
-    stack({}).then(function(ctx) {
-      return p.messageToOutput(ctx, { message: 'ko' });
-    }).catch(function(ctx) {
-      assert.equal(ctx.error, 'ko');
-      done();
-    });
+test('required argument', function(done) {
+  addOne({}).then(function() {
+    err('expecting to throw an error.', done);
+  }).catch(function(e) {
+    eq(e.message, 'value argument is required.', done);
+  });
+});
+
+test('defaultsTo value', function(done) {
+  addTwo({}).then(function(v) {
+    eq(v, 12, done);
+  }).catch(function() {
+    err('expecting to not throw an error.', done);
   });
 });

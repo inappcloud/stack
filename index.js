@@ -1,4 +1,3 @@
 module.exports = {
-  stack: require('./src/stack'),
-  pkg: require('./src/pkg')
+  fn: require('./src/fn')
 };
