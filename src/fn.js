@@ -5,7 +5,11 @@ module.exports = function(fn) {
     for (var argName in fn.args) {
       if (fn.args[argName].required === true && args[argName] === undefined) {
         return new Promise(function(resolve, reject) {
-          reject(new Error(argName + ' argument is required.'));
+          var e = new Error();
+          e.id = 'MISSING_ARG';
+          e.message = argName + ' argument is required.';
+          e.code = 400;
+          reject(e);
         });
       }
 
