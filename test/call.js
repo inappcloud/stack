@@ -15,23 +15,27 @@ function fail(msg, done) {
   done(new Error(msg));
 }
 
-function invalidArgErr() {
-  var e = new Error();
-  e.id = 'INVALID_ARG';
-  e.message = 'value argument must be a number.';
-  e.status = 400;
-  return e;
+function err(func, e) {
+  if (func.errors[e.message] !== undefined) {
+    var newErr = new Error();
+    newErr.id = e.message;
+    newErr.message = func.errors[e.message].message;
+    newErr.status = func.errors[e.message].status;
+    return newErr;
+  } else {
+    return e;
+  }
 }
 
 function missingArgErr() {
   var e = new Error();
   e.id = 'MISSING_ARG';
   e.message = 'value argument is required.';
-  e.code = 400;
+  e.status = 400;
   return e;
 }
 
-var addOne = fn({
+var addOne = {
   name: 'addOne',
 
   args: {
@@ -40,16 +44,27 @@ var addOne = fn({
     }
   },
 
+  out: {
+    example: 4
+  },
+
+  errors: {
+    invalidArgument: {
+      message: 'value argument must be a number.',
+      status: 400
+    }
+  },
+
   call: function(args, done) {
     if (typeof args.value !== 'number') {
-      done(invalidArgErr());
+      done(new Error('invalidArgument'));
     } else {
       done(args.value + 1);
     }
   }
-});
+};
 
-var addTwo = fn({
+var addTwo = {
   name: 'addOne',
 
   args: {
@@ -61,10 +76,10 @@ var addTwo = fn({
   call: function(args, done) {
     done(args.value + 2);
   }
-});
+};
 
 test('function call', function(done) {
-  addOne({ value: 1 }).then(function(v) {
+  fn(addOne)({ value: 1 }).then(function(v) {
     eq(v, 2, done);
   }).catch(function() {
     fail('expecting to not throw an error.', done);
@@ -72,15 +87,15 @@ test('function call', function(done) {
 });
 
 test('rejected call', function(done) {
-  addOne({ value: 'test' }).then(function() {
+  fn(addOne)({ value: 'test' }).then(function() {
     fail('expecting to throw an error.', done);
   }).catch(function(e) {
-    eq(e, invalidArgErr(), done);
+    eq(e, err(addOne, e), done);
   });
 });
 
 test('required argument', function(done) {
-  addOne({}).then(function() {
+  fn(addOne)({}).then(function() {
     fail('expecting to throw an error.', done);
   }).catch(function(e) {
     eq(e, missingArgErr(), done);
@@ -88,7 +103,7 @@ test('required argument', function(done) {
 });
 
 test('defaultsTo value', function(done) {
-  addTwo({}).then(function(v) {
+  fn(addTwo)({}).then(function(v) {
     eq(v, 12, done);
   }).catch(function() {
     fail('expecting to not throw an error.', done);
