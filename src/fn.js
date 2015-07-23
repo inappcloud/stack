@@ -1,26 +1,30 @@
 var util = require('util');
 
-function err(fn, e) {
-  if (fn.errors[e.message] !== undefined) {
+function err(errors, e) {
+  if (errors[e.message] !== undefined) {
     var newErr = new Error();
     newErr.id = e.message;
-    newErr.message = fn.errors[e.message].message;
-    newErr.status = fn.errors[e.message].status;
+    newErr.message = errors[e.message].message;
+    newErr.status = errors[e.message].status;
     return newErr;
   } else {
     return e;
   }
 }
 
+var fnErrors = {
+  missingArg: {
+    status: 400
+  }
+};
+
 module.exports = function(fn) {
   return function(args) {
     for (var argName in fn.args) {
       if (fn.args[argName].required === true && args[argName] === undefined) {
         return new Promise(function(resolve, reject) {
-          var e = new Error();
-          e.id = 'MISSING_ARG';
+          var e = err(fnErrors, new Error('missingArg'));
           e.message = argName + ' argument is required.';
-          e.status = 400;
           reject(e);
         });
       }
@@ -33,7 +37,7 @@ module.exports = function(fn) {
     return new Promise(function(resolve, reject) {
       function done(v) {
         if (util.isError(v)) {
-          reject(err(fn, v));
+          reject(err(fn.errors, v));
         } else {
           resolve(v);
         }

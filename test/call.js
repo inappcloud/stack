@@ -29,7 +29,7 @@ function err(func, e) {
 
 function missingArgErr() {
   var e = new Error();
-  e.id = 'MISSING_ARG';
+  e.id = 'missingArg';
   e.message = 'value argument is required.';
   e.status = 400;
   return e;
