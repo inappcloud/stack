@@ -12,19 +12,15 @@ function err(errors, e) {
   }
 }
 
-var fnErrors = {
-  missingArg: {
-    status: 400
-  }
-};
-
 module.exports = function(fn) {
   return function(args) {
     for (var argName in fn.args) {
       if (fn.args[argName].required === true && args[argName] === undefined) {
         return new Promise(function(resolve, reject) {
-          var e = err(fnErrors, new Error('missingArg'));
+          var e = new Error();
+          e.id = 'missingArg';
           e.message = argName + ' argument is required.';
+          e.status = 400;
           reject(e);
         });
       }
