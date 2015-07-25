@@ -4,7 +4,11 @@ function err(errors, e) {
   if (errors[e.message] !== undefined) {
     var newErr = new Error();
     newErr.id = e.message;
-    newErr.message = errors[e.message].message;
+    if (e.args !== undefined) {
+      newErr.message = util.format.apply(null, [errors[e.message].message].concat(e.args));
+    } else {
+      newErr.message = errors[e.message].message;
+    }
     newErr.status = errors[e.message].status;
     return newErr;
   } else {

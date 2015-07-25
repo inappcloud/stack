@@ -15,16 +15,12 @@ function fail(msg, done) {
   done(new Error(msg));
 }
 
-function err(func, e) {
-  if (func.errors[e.message] !== undefined) {
-    var newErr = new Error();
-    newErr.id = e.message;
-    newErr.message = func.errors[e.message].message;
-    newErr.status = func.errors[e.message].status;
-    return newErr;
-  } else {
-    return e;
-  }
+function invalidArgErr() {
+  var e = new Error();
+  e.id = 'invalidArgument';
+  e.message = 'value argument must be a number.';
+  e.status = 400;
+  return e;
 }
 
 function missingArgErr() {
@@ -50,14 +46,16 @@ var addOne = {
 
   errors: {
     invalidArgument: {
-      message: 'value argument must be a number.',
+      message: '%s argument must be a number.',
       status: 400
     }
   },
 
   call: function(args, done) {
     if (typeof args.value !== 'number') {
-      done(new Error('invalidArgument'));
+      var e = new Error('invalidArgument');
+      e.args = ['value'];
+      done(e);
     } else {
       done(args.value + 1);
     }
@@ -90,7 +88,7 @@ test('rejected call', function(done) {
   fn(addOne)({ value: 'test' }).then(function() {
     fail('expecting to throw an error.', done);
   }).catch(function(e) {
-    eq(e, err(addOne, e), done);
+    eq(e, invalidArgErr(), done);
   });
 });
 
